@@ -1,11 +1,13 @@
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.Test;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 public class test1 {
 
     private static AppiumDriverLocalService service;
-    private static AndroidDriver<AndroidElement> driver;
+    public static AndroidDriver<AndroidElement> driver;
+
     @BeforeSuite
     public void beforeSuite()
     {
@@ -34,16 +37,20 @@ public class test1 {
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
-    @Test
+    @Test(retryAnalyzer = MyRetry.class)
     public void test1() throws InterruptedException {
         driver.findElementById("home_search").click();
+        WebDriverWait waiter = new WebDriverWait(driver,10);
+        WebElement cancelLabel = waiter.
+                until(ExpectedConditions.presenceOfElementLocated(By.xpath("//android.widget.TextView[contains(@text,'取消')]")));
+        Assert.assertEquals(cancelLabel.getText(),"取消");
         Thread.sleep(10);
     }
-
 
     @AfterSuite
     public void afterSuite()
     {
+        driver.quit();
         service.stop();
     }
 
